@@ -1,64 +1,66 @@
-# Actividad: Propuesta de Práctica Temática en Entorno de Sistemas
+# Raspberry Pi Pico W Mini Piano
 
-## Descripción general
-En esta actividad vas a diseñar una **propuesta de práctica temática pequeña** para GitHub Classroom. La meta principal es que planees y documentes bien tu idea antes de programar. Al final, tendrás un repositorio ordenado, con caso de uso, estructura definida y plan de pruebas básico.
+A compact RP2040 firmware project that turns a Raspberry Pi Pico W into an 8-key mini piano using pushbuttons and a buzzer.
 
-## Objetivo de aprendizaje
-Al terminar esta actividad, serás capaz de:
-- Definir un problema concreto y acotado para resolver en terminal.
-- Justificar técnicamente la elección de lenguaje.
-- Organizar un repositorio limpio y mantenible.
-- Documentar una propuesta técnica de forma clara.
-- Diseñar pruebas mínimas sin depender de frameworks complejos.
+## Features
+- 8-button digital keyboard (keys `1..8` in Wokwi)
+- Note mapping from C4 to C5
+- Active-low inputs using internal pull-up resistors
+- Simple low-latency polling loop (`10 ms`)
+- Compatible with Raspberry Pi Pico and Pico W pin behavior
 
-## Lenguajes permitidos
-Puedes elegir **solo uno** como lenguaje principal:
-- ARM64 Assembly
-- C
-- Python
-- Bash
+## Repository Structure
 
-## Reglas para mantener el proyecto pequeño
-- Enfócate en una sola necesidad concreta.
-- Limita el prototipo a funciones esenciales.
-- Evita interfaces complejas; usa terminal.
-- No incluyas dependencias externas innecesarias.
-- No uses frameworks, bases de datos, nube ni APIs externas.
-- Si eliges ARM64 Assembly, el alcance debe ser **muy pequeño**.
+```
+.
+├── CMakeLists.txt
+├── README.md
+├── include/
+│   └── pitches.h
+├── src/
+│   └── main.cpp
+└── docs/
+    ├── architecture.md
+    └── wiring.md
+```
 
-## Ejemplos de posibles temas
-- **Mini Toolkit en ARM64**
-- **Asistente de Estudio en Terminal**
-- **Reporteador de Información del Sistema**
-- **Organizador de Archivos**
-- **Juego de Aprendizaje en Línea de Comandos**
+## Hardware Bill of Materials
+- Raspberry Pi Pico W (target)
+- 8x momentary pushbuttons
+- 1x passive buzzer
+- Jumper wires
+- Breadboard (recommended)
 
-## Entregables esperados
-1. `docs/propuesta.md` completo.
-2. `docs/caso_de_uso.md` completo.
-3. `docs/estructura_repositorio.md` revisado y alineado con tu proyecto.
-4. `docs/plan_de_pruebas.md` con casos mínimos definidos.
-5. `tests/test_plan.md` con checklist marcado.
-6. `src/main.<ext>` con prototipo mínimo opcional.
+See full wiring details in `docs/wiring.md`.
 
-## Instrucciones para el estudiante
-1. Lee todo el repositorio base.
-2. Define el tema y lenguaje principal.
-3. Llena primero `docs/propuesta.md`.
-4. Describe tu caso de uso en `docs/caso_de_uso.md`.
-5. Ajusta la estructura en `docs/estructura_repositorio.md` si lo necesitas (sin volverla grande).
-6. Crea tu plan de pruebas en `docs/plan_de_pruebas.md` y checklist en `tests/test_plan.md`.
-7. Opcional: implementa un prototipo mínimo en `src/main.<ext>`.
-8. Verifica ejecución con `scripts/run.sh`.
-9. Haz commit de tu avance con evidencia clara.
+## Pin Mapping (Quick Reference)
+- Buttons: `GP12, GP11, GP10, GP9, GP7, GP6, GP5, GP4`
+- Buzzer output: `GP8`
+- Ground common: `GND`
 
-## Criterios generales de evaluación
-- Claridad y calidad de la documentación.
-- Coherencia entre problema, solución y alcance.
-- Viabilidad técnica del proyecto en tamaño pequeño.
-- Organización del repositorio.
-- Definición de pruebas mínimas realistas.
-- (Opcional) Prototipo funcional básico.
+## Build/Flash Options
 
-## Nota importante
-Primero se documenta y justifica la propuesta. Después, **de forma opcional**, se implementa un prototipo pequeño.
+### Option A: Wokwi Simulation (recommended for quick test)
+1. Open Wokwi and create a new **Raspberry Pi Pico (Arduino)** project (`arduino-community` env).
+2. Paste `src/main.cpp` and `include/pitches.h` content into the simulation project.
+3. Recreate wiring based on `docs/wiring.md` (or import your original `diagram.json`).
+4. Start simulation and click the canvas to focus.
+5. Press keyboard keys `1` to `8` to trigger notes.
+
+### Option B: Real Pico W Hardware (Arduino toolchain)
+Use Arduino IDE or `arduino-cli` with a Pico-compatible core supporting `tone()`.
+
+1. Install Arduino IDE.
+2. Install an RP2040 board package (e.g., Arduino-Pico core).
+3. Create a sketch and copy in `src/main.cpp` content.
+4. Add `pitches.h` to the sketch folder.
+5. Select board **Raspberry Pi Pico W** and the right serial/UF2 upload path.
+6. Upload and test buttons + buzzer wiring.
+
+> Note: `CMakeLists.txt` is included for repository normalization and project metadata. Actual firmware build is expected through Arduino-compatible tooling because this code uses Arduino APIs (`pinMode`, `digitalRead`, `tone`, `noTone`).
+
+## Wi-Fi Notes
+This firmware does not use Wi-Fi. No SSID/password or secrets are required.
+
+## Behavior Preservation
+Core logic is intentionally preserved: GPIO list, note mapping, active-low scanning, single-note output policy, and loop timing.
